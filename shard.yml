@@ -1,0 +1,15 @@
+name: crystal_task
+version: 0.1.0
+authors:
+  - Andrew Medeiros <andrew@amedeiros.com>
+crystal: 0.27.2
+license: MIT
+
+dependencies:
+  redis:
+    github: stefanwille/crystal-redis
+    version: ~> 2.1.1
+  cron_parser:
+    github: kostya/cron_parser
+  kemal:
+    github: kemalcr/kemal

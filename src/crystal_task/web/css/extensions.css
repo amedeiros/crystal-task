@@ -1,0 +1,15 @@
+@charset "UTF-8";
+
+body {
+  background-color: #616161 !important
+}
+
+.navbar {
+    background-color: #3f51b5
+}
+
+.card {
+  height: -webkit-calc(100% - 30px);
+  height: calc(100% - 30px);
+  margin-bottom: 30px
+}
