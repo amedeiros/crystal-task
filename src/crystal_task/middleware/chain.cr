@@ -10,8 +10,7 @@ module CrystalTask
       end
 
       def exec(job, &block : -> Bool)
-        chain = middleware.map { |m| m }
-        next_link(chain, job, &block)
+        next_link(middleware.dup, job, &block)
       end
 
       def add(m : T)
