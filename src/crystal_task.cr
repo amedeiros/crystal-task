@@ -63,11 +63,9 @@ module CrystalTask
 
     # Cron scheduling is more percise than periodic.
     # Don't schedule now schedule for next interval.
-    puts worker.class.cron.as(String)
     cron_parser = CronParser.new(worker.class.cron.as(String))
     time        = cron_parser.next(Time.now)
     score       = (time - Time::UNIX_EPOCH).to_i
-    puts score
 
     CrystalTask.storage.push_scheduled(worker.class.new_job, SCHEDULED_QUEUE, score)
   end
