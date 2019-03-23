@@ -9,7 +9,7 @@ module CrystalTask
         @middleware = Array(T).new
       end
 
-      def exec(job, &block : -> Bool)
+      def exec(job : CrystalTask::Job, &block : -> Bool)
         next_link(middleware.dup, job, &block)
       end
 
@@ -43,7 +43,7 @@ module CrystalTask
         end
       end
 
-      private def next_link(chain, job, &block)
+      private def next_link(chain : Array(T), job : CrystalTask::Job, &block)
         if chain.empty?
           block.call
         else
