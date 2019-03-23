@@ -61,6 +61,7 @@ module CrystalTask
           klass:         job.klass
         })
 
+        job.job_state = CrystalTask::JobState::Retry
         pool.zadd(queue_name, job.next_retry, job.to_json)
       end
 
@@ -78,6 +79,8 @@ module CrystalTask
           failed_at:     job.last_failed,
           klass:         job.klass
         })
+        
+        job.job_state = CrystalTask::JobState::Dead
 
         pool.pipelined do |pipeline|
           pipeline.zadd(queue_name, unix_epoch, job.to_json)
@@ -92,6 +95,7 @@ module CrystalTask
       end
 
       def push_queued(job : CrystalTask::Job, queue_name : String)
+        job.job_state = CrystalTask::JobState::Queued
         pool.sadd(queue_name, job.to_json)
       end
 

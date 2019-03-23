@@ -18,11 +18,9 @@ module CrystalTask
 
           if job.retries >= job.max_retries
             # Move to dead letters queue
-            job.job_state = CrystalTask::JobState::Dead
             CrystalTask.storage.push_dead(job, CrystalTask::DEAD_LETTER_QUEUE)
           else
             # Move to retries queue
-            job.job_state = CrystalTask::JobState::Retry
             CrystalTask.storage.push_retries(job, CrystalTask::RETRIES_QUEUE)
           end
 

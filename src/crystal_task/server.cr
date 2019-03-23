@@ -97,7 +97,6 @@ module CrystalTask
           spawn do
             begin
               # Push the job onto the queued queue
-              job.job_state = CrystalTask::JobState::Queued
               queued.send(job)
 
               worker = CrystalTask.worker(job.klass)
