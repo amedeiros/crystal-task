@@ -31,7 +31,6 @@ module CrystalTask
     end
 
     # Implement your own perform method.
-    # args is a NamedTuple.
     abstract def perform(args : Hash(String, JSON::Any))
 
     def logger
