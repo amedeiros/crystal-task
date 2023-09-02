@@ -9,8 +9,7 @@ module CrystalTask
       getter pool : ::Redis::PooledClient
 
       def initialize(hostname : String = ENV.fetch("REDIS_HOST", "127.0.0.1"),
-        pool_size : Int64  = ENV.fetch("REDIS_POOL_SIZE", (System.cpu_count > 5 ? System.cpu_count : 5).to_s).to_i64 )
-
+                     pool_size : Int64 = ENV.fetch("REDIS_POOL_SIZE", (System.cpu_count > 5 ? System.cpu_count : 5).to_s).to_i64)
         @pool = ::Redis::PooledClient.new(hostname, pool_size: pool_size.to_i)
       end
 
@@ -36,7 +35,7 @@ module CrystalTask
 
       # Blocking
       def pop(queues : Array(String)) : CrystalTask::Job?
-        val        = pool.brpop(queues, 2)
+        val = pool.brpop(queues, 2)
         collection = val.as(Array(::Redis::RedisValue))
         return nil if collection.empty?
 
@@ -58,7 +57,7 @@ module CrystalTask
           next_retry:    Time.unix(job.next_retry.as(Int)),
           retry_count:   job.retries,
           failed_at:     job.last_failed,
-          klass:         job.klass
+          klass:         job.klass,
         })
 
         job.job_state = CrystalTask::JobState::Retry
@@ -77,9 +76,9 @@ module CrystalTask
           msg:           "Pushing to dead queue",
           retry_count:   job.retries,
           failed_at:     job.last_failed,
-          klass:         job.klass
+          klass:         job.klass,
         })
-        
+
         job.job_state = CrystalTask::JobState::Dead
 
         pool.pipelined do |pipeline|
@@ -103,7 +102,7 @@ module CrystalTask
         pool.srem(queue_name, job.to_json)
       end
 
-      def queued(queue_name : String) Array(CrystalTask::Job)
+      def queued(queue_name : String) : Array(CrystalTask::Job)
         pool.smembers(queue_name).as(Array(::Redis::RedisValue)).map { |x| Job.from_json(x.as(String)) }
       end
 
@@ -120,7 +119,7 @@ module CrystalTask
       end
 
       def read_queues(key : String) : Array(String)
-        pool.smembers(key).as(Array(::Redis::RedisValue)).map{ |x| x.as(String) }
+        pool.smembers(key).as(Array(::Redis::RedisValue)).map { |x| x.as(String) }
       end
 
       def push_scheduled(job : CrystalTask::Job, queue_name : String, score : Int64)
@@ -137,8 +136,8 @@ module CrystalTask
               pipeline.zadd(queue_name, time, job.to_json)
             else # cron
               cron_parser = CronParser.new(CrystalTask.worker(job.klass).class.cron.as(String))
-              time        = cron_parser.next(Time.now)
-              score       = (time - Time::UNIX_EPOCH).to_i
+              time = cron_parser.next(Time.utc)
+              score = (time - Time::UNIX_EPOCH).to_i
 
               pipeline.zadd(queue_name, score, job.to_json)
             end
@@ -156,8 +155,8 @@ module CrystalTask
 
       def cleanup
         # Stats day keys
-        keys_processed = pool.keys("*:processed:#{Time.now.year}*").as(Array(::Redis::RedisValue)).map { |x| x.as(String) }.sort
-        keys_failed    = pool.keys("*:failed:#{Time.now.year}*").as(Array(::Redis::RedisValue)).map { |x| x.as(String) }.sort
+        keys_processed = pool.keys("*:processed:#{Time.utc.year}*").as(Array(::Redis::RedisValue)).map { |x| x.as(String) }.sort
+        keys_failed = pool.keys("*:failed:#{Time.utc.year}*").as(Array(::Redis::RedisValue)).map { |x| x.as(String) }.sort
         # Clean up stats greater than 30 days
         keys = [] of String
         keys += keys_processed[0..(keys_processed.size - 30)]
@@ -169,13 +168,13 @@ module CrystalTask
       end
 
       private def unix_epoch : Int64
-        (Time.now - Time::UNIX_EPOCH).to_i
-      end  
+        (Time.utc - Time::UNIX_EPOCH).to_i
+      end
 
       private def zremrangebyscore(queue_name : String) : Array(CrystalTask::Job)?
         begin
-          now        = unix_epoch
-          jobs       = pool.zrangebyscore(queue_name, "-inf", now)
+          now = unix_epoch
+          jobs = pool.zrangebyscore(queue_name, "-inf", now)
           collection = jobs.as(Array(::Redis::RedisValue))
 
           return Array(CrystalTask::Job).new if collection.empty?
@@ -183,8 +182,7 @@ module CrystalTask
 
           collection.map { |x| CrystalTask::Job.from_json(x.as(String)) }
         rescue exc : ::Redis::Error
-          logger.warn(exc)
-          logger.warn(exc.backtrace.join("\n"))
+          logger.warn(exception: exc) { exc.message }
           return Array(CrystalTask::Job).new
         end
       end

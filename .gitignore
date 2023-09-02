@@ -13,3 +13,8 @@ Procfile
 .grafana
 .prometheus
 .editorconfig
+
+# Performance example binary
+performance_example
+# A file where I test code
+play.cr
