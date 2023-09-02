@@ -25,7 +25,7 @@ Creating a worker is as easy as including CystalTask::Worker and implementing th
 ```crystal
 class ExampleWorker
   include CrystalTask::Worker
-  
+
   retries 5              # adjust how many times this job can be retried
   queue "examples-queue" # change the queue from the default queue 'default' to your own.
 
@@ -38,7 +38,7 @@ end
 
 Queue work for the worker. `ExampleWorker.perform_async!(x: 1, y: 1)`
 
-There is the concept of periodic workers that can run on interval. They are less percise than the 
+There is the concept of periodic workers that can run on interval. They are less percise than the
 cron style workers see below.
 
 ```crystal
@@ -47,7 +47,7 @@ class PeriodicWorker
 
   # 10.minutes, 1.minutes, 1.month etc...
   # EX: First run 10:05:36 next run 11:05:36
-  periodic 1.hour  
+  periodic 1.hour
 
   def perform(args : Hash(String, JSON::Any))
     # do some work on an interval
@@ -63,7 +63,7 @@ class CronWorker
   cron "* * * * *"
 
   def perform(args : Hash(String, JSON::Any))
-    logger.info("CronWorker time: #{Time.now}")
+    logger.info { "CronWorker time: #{Time.utc}" }
   end
 end
 ```

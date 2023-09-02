@@ -7,7 +7,7 @@ require "./crystal_task/storage/redis"
 require "./crystal_task/server"
 
 module CrystalTask
-  VERSION = "0.1.0"
+  VERSION = "0.2.0"
 
   # Default Namespace
   REDIS_NAMESPACE = "crystal_task:"
@@ -31,10 +31,10 @@ module CrystalTask
 
   # Store the queues
   @@processing_queues : Array(String) = Array(String).new
-  @@lifecycle_queues  : Array(String) = [RETRIES_QUEUE, DEAD_LETTER_QUEUE, QUEUED_QUEUE]
+  @@lifecycle_queues : Array(String) = [RETRIES_QUEUE, DEAD_LETTER_QUEUE, QUEUED_QUEUE]
 
   # Default logger
-  @@logger = Logger.new(STDOUT, level: Logger::DEBUG)
+  @@logger = Logger.new(source: "default", level: Log::Severity::Info, backend: Log::IOBackend.new)
 
   def self.logger=(logger : Logger)
     @@logger = logger
@@ -64,8 +64,8 @@ module CrystalTask
     # Cron scheduling is more percise than periodic.
     # Don't schedule now schedule for next interval.
     cron_parser = CronParser.new(worker.class.cron.as(String))
-    time        = cron_parser.next(Time.now)
-    score       = (time - Time::UNIX_EPOCH).to_i
+    time = cron_parser.next(Time.utc)
+    score = (time - Time::UNIX_EPOCH).to_i
 
     CrystalTask.storage.push_scheduled(worker.class.new_job, SCHEDULED_QUEUE, score)
   end
@@ -81,7 +81,7 @@ module CrystalTask
 
   def self.register_processing_queue(queue : String)
     if !processing_queue?(queue)
-      @@processing_queues.push(queue) 
+      @@processing_queues.push(queue)
       storage.write_queue(queue, QUEUES_KEY)
     end
   end
@@ -110,20 +110,20 @@ module CrystalTask
     CrystalTask::Configuration.instance.metrics
   end
 
-  def self.spawn_safe_fiber(&block)
+  def self.spawn_safe_fiber(name : String, verbose : Bool = true, &block)
     spawn do
+      CrystalTask.logger.info { "Starting fiber #{name}..." } if verbose
       loop do
         begin
           block.call
         rescue exc : Exception
-          CrystalTask.logger.error("Caught unhandled exception...")
-          CrystalTask.logger.error(exc)
+          CrystalTask.logger.error(exception: exc) { "#{name}: Caught unhandled exception exiting..." }
         end
       end
     end
   end
 
   def self.unix_epoch : Int64
-    (Time.now - Time::UNIX_EPOCH).to_i
+    (Time.utc - Time::UNIX_EPOCH).to_i
   end
 end

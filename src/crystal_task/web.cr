@@ -11,17 +11,17 @@ module CrystalTask
     end
 
     get "/" do |x|
-      keys, all_keys  = metric_keys
+      keys, all_keys = metric_keys
 
       # TODO: Move all this into a pipeline
-      counts          = CrystalTask.metrics.counts(all_keys)
-      processed_data  = stats("processed", keys, counts)
-      failed_data     = stats("failed", keys, counts)
-      queued          = CrystalTask.storage.queued(CrystalTask::QUEUED_QUEUE)
-      retries         = CrystalTask.storage.retries(CrystalTask::RETRIES_QUEUE)
-      dead            = CrystalTask.storage.dead(CrystalTask::DEAD_LETTER_QUEUE)
-      waiting         = CrystalTask.storage.waiting(processing_queues)
-      scheduled       = CrystalTask.storage.scheduled(CrystalTask::SCHEDULED_QUEUE)
+      counts = CrystalTask.metrics.counts(all_keys)
+      processed_data = stats("processed", keys, counts)
+      failed_data = stats("failed", keys, counts)
+      queued = CrystalTask.storage.queued(CrystalTask::QUEUED_QUEUE)
+      retries = CrystalTask.storage.retries(CrystalTask::RETRIES_QUEUE)
+      dead = CrystalTask.storage.dead(CrystalTask::DEAD_LETTER_QUEUE)
+      waiting = CrystalTask.storage.waiting(processing_queues)
+      scheduled = CrystalTask.storage.scheduled(CrystalTask::SCHEDULED_QUEUE)
 
       render_helper "index"
     end
@@ -35,16 +35,16 @@ module CrystalTask
 
     private def self.stats(metric : String, keys, counts)
       {
-        labels: keys.map { |x| x.split(":").last if x.includes?(metric) }.compact,
-        datasets: [ { data: keys.map { |x| counts[x].to_i if x.includes?(metric) }.compact,
-                      label: metric.capitalize } ],
+        labels:   keys.map { |x| x.split(":").last if x.includes?(metric) }.compact,
+        datasets: [{data: keys.map { |x| counts[x].to_i if x.includes?(metric) }.compact,
+                    label: metric.capitalize}],
       }
     end
 
     private def self.metric_keys
-      now   = Time.now.to_s("%Y-%m-%d")
-      keys  = ["#{CrystalTask::PROCESSED_COUNT}:#{now}",
-               "#{CrystalTask::FAILED_COUNT}:#{now}"] of String
+      now = Time.utc.to_s("%Y-%m-%d")
+      keys = ["#{CrystalTask::PROCESSED_COUNT}:#{now}",
+              "#{CrystalTask::FAILED_COUNT}:#{now}"] of String
 
       7.times do |x|
         ago = ":" + (x + 1).days.ago.to_s("%Y-%m-%d")

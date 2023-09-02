@@ -12,36 +12,33 @@ module CrystalTask
   end
 
   class Job
-    # Information to store with the job
-    JSON.mapping({
-      queue:               String,
-      jid:                 String,
-      klass:               String,
-      exception_msg:       String?,
-      exception_backtrace: String?,
-      last_failed:         String?,
-      cron:                String?,
-      job_state:           JobState,
-      retries:             Int64,
-      max_retries:         Int64,
-      periodic:            Int64,
-      next_retry:          Int64?,
-      args:       { type: String, converter: String::RawConverter },
-      created_at: { type: Time, converter: Time::EpochConverter },
-    })
+    include JSON::Serializable
+    # Metadata
+    property created_at : Time
+    property job_state : JobState
+    getter queue : String
+    getter jid : String
+    getter klass : String
+    getter args : String
+    # Schedules
+    getter cron : String?
+    getter periodic : Int64
+    # Exceptions
+    property exception_msg : String?
+    property exception_backtrace : String?
+    property last_failed : String?
+    # Retry
+    property retries : Int64
+    getter max_retries : Int64
+    property next_retry : Int64?
 
-    def initialize(queue, klass : String, args : NamedTuple, max_retries : Int64, periodic : Int64, cron : String?)
-      @queue       = queue
-      @jid         = UUID.random.to_s
-      @klass       = klass
-      @retries     = 0
-      @max_retries = max_retries
-      @args        = args.to_json
-      @created_at  = Time.now
-      @job_state   = JobState::Waiting
-      @periodic    = periodic
-      @cron        = cron
+    def initialize(@queue : String, @klass : String, args : NamedTuple,
+                   @max_retries : Int64, @periodic : Int64, @cron : String? = nil)
+      @jid = UUID.random.to_s
+      @retries = Int64.new(0)
+      @args = args.to_json
+      @created_at = Time.utc
+      @job_state = JobState::Waiting
     end
   end
 end
-

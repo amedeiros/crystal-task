@@ -16,7 +16,7 @@ module CrystalTask
     @@cron : String?
 
     # Register this worker on include
-    macro included 
+    macro included
       extend CrystalTask::Worker::ClassMethods
 
       if !@@periodic.nil?
