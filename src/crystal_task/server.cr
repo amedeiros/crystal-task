@@ -9,10 +9,10 @@ module CrystalTask
     @@work = Channel(CrystalTask::Job).new(CrystalTask.max_fibers.to_i)
 
     # Unbound completed channel for recording stats
-    @@completed = Channel(CrystalTask::Job).new # (CrystalTask.max_fibers.to_i)
+    @@completed = Channel(CrystalTask::Job).new
 
     # Unbound queued channel for pushing running jobs to the queued queue
-    @@queued = Channel(CrystalTask::Job).new # (CrystalTask.max_fibers.to_i)
+    @@queued = Channel(CrystalTask::Job).new
 
     # Default middleware
     @@middleware : CrystalTask::Middleware::Chain(CrystalTask::Middleware::Entry) = CrystalTask::Middleware::Chain(CrystalTask::Middleware::Entry).new.tap do |m|
