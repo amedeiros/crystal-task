@@ -82,7 +82,7 @@ module CrystalTask
         job.job_state = CrystalTask::JobState::Dead
 
         pool.pipelined do |pipeline|
-          pipeline.zadd(queue_name, unix_epoch, job.to_json)
+          pipeline.zadd(queue_name, CrystalTask.unix_epoch, job.to_json)
           pipeline.zremrangebyscore(queue_name, "-inf", (1.month.ago - Time::UNIX_EPOCH).to_i)
           pipeline.zremrangebyrank(queue_name, 0, -10_000)
         end
@@ -132,7 +132,7 @@ module CrystalTask
         pool.pipelined do |pipeline|
           jobs.each do |job|
             if job.cron.nil? # periodic
-              time = (unix_epoch + CrystalTask.worker(job.klass).class.periodic.to_i).to_i64
+              time = (CrystalTask.unix_epoch + CrystalTask.worker(job.klass).class.periodic.to_i).to_i64
               pipeline.zadd(queue_name, time, job.to_json)
             else # cron
               cron_parser = CronParser.new(CrystalTask.worker(job.klass).class.cron.as(String))
@@ -167,13 +167,9 @@ module CrystalTask
         end
       end
 
-      private def unix_epoch : Int64
-        (Time.utc - Time::UNIX_EPOCH).to_i
-      end
-
       private def zremrangebyscore(queue_name : String) : Array(CrystalTask::Job)?
         begin
-          now = unix_epoch
+          now = CrystalTask.unix_epoch
           jobs = pool.zrangebyscore(queue_name, "-inf", now)
           collection = jobs.as(Array(::Redis::RedisValue))
 
