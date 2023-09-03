@@ -30,8 +30,8 @@ class ExampleWorker
   queue "examples-queue" # change the queue from the default queue 'default' to your own.
 
   def perform(args : Hash(String, JSON::Any))
-    logger.info("Hello, Crystal Task!")
-    logger.info(args["x"].as(Int64) + args["y"].as(Int64))
+    logger.info { "Hello, Crystal Task!" }
+    logger.info { args["x"].as(Int64) + args["y"].as(Int64) }
   end
 end
 ```
