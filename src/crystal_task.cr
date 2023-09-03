@@ -54,7 +54,7 @@ module CrystalTask
 
     # Queue periodic job for right now to run right away
     # The server will pop the job and schedule it to its next interval.
-    CrystalTask.storage.push_scheduled(worker.class.new_job, SCHEDULED_QUEUE, CrystalTask.unix_epoch)
+    CrystalTask.storage.push_scheduled(worker.class.new_job, SCHEDULED_QUEUE, unix_epoch)
   end
 
   def self.register_cron_worker(worker : CrystalTask::Worker)
