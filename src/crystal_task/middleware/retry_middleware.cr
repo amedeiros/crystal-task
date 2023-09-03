@@ -33,12 +33,8 @@ module CrystalTask
         true
       end
 
-      private def unix_epoch : Int64
-        (Time.utc - Time::UNIX_EPOCH).to_i
-      end
-
       private def backoff(retries : Int64) : Int64
-        unix_epoch + (retries ** 4) + 15 + (rand(30) * (retries + 1))
+        CrystalTask.unix_epoch + (retries ** 4) + 15 + (rand(30) * (retries + 1))
       end
     end
   end
