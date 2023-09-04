@@ -1,13 +1,12 @@
 require "kemal"
-require "../crystal_task"
-require "./web/*"
+require "./web/html/*"
 
 module CrystalTask
   class Web
     public_folder "#{__DIR__}/web"
 
     macro render_helper(file)
-      render "src/crystal_task/web/html/#{{{file}}}.ecr", "src/crystal_task/web/html/layout.ecr"
+      render "#{__DIR__}/web/html/#{{{file}}}.ecr", "src/crystal_task/web/html/layout.ecr"
     end
 
     get "/" do |x|

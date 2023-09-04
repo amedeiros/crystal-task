@@ -9,7 +9,7 @@ Background workers for Crystal. Similar to other background systems. There is a 
    ```yaml
    dependencies:
      crystal_task:
-       github: amedeiros/crystal_task
+       github: amedeiros/crystal-task
    ```
 
 2. Run `shards install`
