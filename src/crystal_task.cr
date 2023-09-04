@@ -4,7 +4,6 @@ require "./crystal_task/job"
 require "./crystal_task/worker"
 require "./crystal_task/configuration"
 require "./crystal_task/storage/redis"
-require "./crystal_task/server"
 
 module CrystalTask
   VERSION = "0.2.0"

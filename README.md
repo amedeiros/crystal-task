@@ -72,6 +72,7 @@ Running the worker server.
 
 ```crystal
 #!/usr/bin/env crystal
+require "crystal_task"
 require "crystal_task/server"
 CrystalTask::Server.run!
 ```
@@ -80,6 +81,7 @@ Running the web server.
 
 ```crystal
 #!/usr/bin/env crystal
+require "crystal_task"
 require "crystal_task/web"
 CrystalTask::Web.run!
 ```
