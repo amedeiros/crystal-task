@@ -111,6 +111,8 @@ module CrystalTask
       # Main loop to load work
       loop do
         # TODO: Priority Queues
+        queues = CrystalTask.processing_queues.shuffle.uniq
+        next if queues.size.zero?
         job = CrystalTask.storage.pop(CrystalTask.processing_queues.shuffle.uniq)
         work.send(job) if job
       end
