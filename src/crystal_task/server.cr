@@ -41,7 +41,6 @@ module CrystalTask
     end
 
     def self.run!
-      print_banner
       CrystalTask.boot("worker")
 
       # Worker fibers with the max threads configured
@@ -116,25 +115,6 @@ module CrystalTask
         job = CrystalTask.storage.pop(CrystalTask.processing_queues.shuffle.uniq)
         work.send(job) if job
       end
-    end
-
-    def self.print_banner
-      puts "\e[#{31}m"
-      puts banner
-      puts "\e[0m"
-    end
-
-    def self.banner
-      %q{
-       _______  _______           _______ _________ _______  _         _________ _______  _______  _
-      (  ____ \(  ____ )|\     /|(  ____ \\__   __/(  ___  )( \        \__   __/(  ___  )(  ____ \| \    /\
-      | (    \/| (    )|( \   / )| (    \/   ) (   | (   ) || (           ) (   | (   ) || (    \/|  \  / /
-      | |      | (____)| \ (_) / | (_____    | |   | (___) || |           | |   | (___) || (_____ |  (_/ /
-      | |      |     __)  \   /  (_____  )   | |   |  ___  || |           | |   |  ___  |(_____  )|   _ (
-      | |      | (\ (      ) (         ) |   | |   | (   ) || |           | |   | (   ) |      ) ||  ( \ \
-      | (____/\| ) \ \__   | |   /\____) |   | |   | )   ( || (____/\     | |   | )   ( |/\____) ||  /  \ \
-      (_______/|/   \__/   \_/   \_______)   )_(   |/     \|(_______/     )_(   |/     \|\_______)|_/    \/
-}
     end
   end
 end

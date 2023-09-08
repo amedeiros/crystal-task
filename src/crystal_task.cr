@@ -126,8 +126,9 @@ module CrystalTask
     (Time.utc - Time::UNIX_EPOCH).to_i
   end
 
-  # This is here because it is currently shared between worker server and web.
+  # The following functions are here because it is currently shared between worker server and web.
   def self.boot(kind)
+    print_banner
     CrystalTask.logger.info { "Crystal Task VERSION: #{CrystalTask::VERSION}" }
 
     CrystalTask.logger.info { "Writing queues #{CrystalTask.queues.join(", ")}" }
@@ -137,5 +138,24 @@ module CrystalTask
     CrystalTask.storage.cleanup
 
     CrystalTask.logger.info { "Starting #{kind} server...." }
+  end
+
+  def self.print_banner
+    puts "\e[#{31}m"
+    puts banner
+    puts "\e[0m"
+  end
+
+  def self.banner
+    %q{
+     _______  _______           _______ _________ _______  _         _________ _______  _______  _
+    (  ____ \(  ____ )|\     /|(  ____ \\__   __/(  ___  )( \        \__   __/(  ___  )(  ____ \| \    /\
+    | (    \/| (    )|( \   / )| (    \/   ) (   | (   ) || (           ) (   | (   ) || (    \/|  \  / /
+    | |      | (____)| \ (_) / | (_____    | |   | (___) || |           | |   | (___) || (_____ |  (_/ /
+    | |      |     __)  \   /  (_____  )   | |   |  ___  || |           | |   |  ___  |(_____  )|   _ (
+    | |      | (\ (      ) (         ) |   | |   | (   ) || |           | |   | (   ) |      ) ||  ( \ \
+    | (____/\| ) \ \__   | |   /\____) |   | |   | )   ( || (____/\     | |   | )   ( |/\____) ||  /  \ \
+    (_______/|/   \__/   \_/   \_______)   )_(   |/     \|(_______/     )_(   |/     \|\_______)|_/    \/
+}
   end
 end
