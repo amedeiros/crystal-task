@@ -26,7 +26,7 @@ module CrystalTask
 
     def self.run!
       # print the banner and do some initalization
-      CrystalTask::Server.boot("web")
+      CrystalTask.boot("web")
       # Run kemal
       Kemal.run(CrystalTask::Configuration.instance.web_port)
     end

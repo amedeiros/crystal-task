@@ -42,7 +42,7 @@ module CrystalTask
 
     def self.run!
       print_banner
-      boot("worker")
+      CrystalTask.boot("worker")
 
       # Worker fibers with the max threads configured
       CrystalTask.max_fibers.times do |count|
@@ -120,18 +120,6 @@ module CrystalTask
       puts "\e[#{31}m"
       puts banner
       puts "\e[0m"
-    end
-
-    def self.boot(kind)
-      CrystalTask.logger.info { "Crystal Task VERSION: #{CrystalTask::VERSION}" }
-
-      CrystalTask.logger.info { "Writing queues #{CrystalTask.queues.join(", ")}" }
-      CrystalTask.storage.write_queues(CrystalTask.queues, CrystalTask::QUEUES_KEY)
-
-      CrystalTask.logger.info { "Housekeeping..." }
-      CrystalTask.storage.cleanup
-
-      CrystalTask.logger.info { "Starting #{kind} server...." }
     end
 
     def self.banner

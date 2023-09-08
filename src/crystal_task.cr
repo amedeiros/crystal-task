@@ -4,7 +4,6 @@ require "./crystal_task/job"
 require "./crystal_task/worker"
 require "./crystal_task/configuration"
 require "./crystal_task/storage/redis"
-require "./crystal_task/server"
 
 module CrystalTask
   VERSION = "0.2.0"
@@ -125,5 +124,18 @@ module CrystalTask
 
   def self.unix_epoch : Int64
     (Time.utc - Time::UNIX_EPOCH).to_i
+  end
+
+  # This is here because it is currently shared between worker server and web.
+  def self.boot(kind)
+    CrystalTask.logger.info { "Crystal Task VERSION: #{CrystalTask::VERSION}" }
+
+    CrystalTask.logger.info { "Writing queues #{CrystalTask.queues.join(", ")}" }
+    CrystalTask.storage.write_queues(CrystalTask.queues, CrystalTask::QUEUES_KEY)
+
+    CrystalTask.logger.info { "Housekeeping..." }
+    CrystalTask.storage.cleanup
+
+    CrystalTask.logger.info { "Starting #{kind} server...." }
   end
 end
