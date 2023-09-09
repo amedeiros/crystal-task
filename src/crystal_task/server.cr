@@ -112,7 +112,7 @@ module CrystalTask
         # TODO: Priority Queues
         queues = CrystalTask.processing_queues.shuffle.uniq
         next if queues.size.zero?
-        job = CrystalTask.storage.pop(CrystalTask.processing_queues.shuffle.uniq)
+        job = CrystalTask.storage.pop(queues)
         work.send(job) if job
       end
     end
