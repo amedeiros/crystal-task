@@ -41,8 +41,7 @@ module CrystalTask
     end
 
     def self.run!
-      print_banner
-      boot("worker")
+      CrystalTask.boot("worker")
 
       # Worker fibers with the max threads configured
       CrystalTask.max_fibers.times do |count|
@@ -111,40 +110,11 @@ module CrystalTask
       # Main loop to load work
       loop do
         # TODO: Priority Queues
-        job = CrystalTask.storage.pop(CrystalTask.processing_queues.shuffle.uniq)
+        queues = CrystalTask.processing_queues.shuffle.uniq
+        next if queues.size.zero?
+        job = CrystalTask.storage.pop(queues)
         work.send(job) if job
       end
-    end
-
-    def self.print_banner
-      puts "\e[#{31}m"
-      puts banner
-      puts "\e[0m"
-    end
-
-    def self.boot(kind)
-      CrystalTask.logger.info { "Crystal Task VERSION: #{CrystalTask::VERSION}" }
-
-      CrystalTask.logger.info { "Writing queues #{CrystalTask.queues.join(", ")}" }
-      CrystalTask.storage.write_queues(CrystalTask.queues, CrystalTask::QUEUES_KEY)
-
-      CrystalTask.logger.info { "Housekeeping..." }
-      CrystalTask.storage.cleanup
-
-      CrystalTask.logger.info { "Starting #{kind} server...." }
-    end
-
-    def self.banner
-      %q{
-       _______  _______           _______ _________ _______  _         _________ _______  _______  _
-      (  ____ \(  ____ )|\     /|(  ____ \\__   __/(  ___  )( \        \__   __/(  ___  )(  ____ \| \    /\
-      | (    \/| (    )|( \   / )| (    \/   ) (   | (   ) || (           ) (   | (   ) || (    \/|  \  / /
-      | |      | (____)| \ (_) / | (_____    | |   | (___) || |           | |   | (___) || (_____ |  (_/ /
-      | |      |     __)  \   /  (_____  )   | |   |  ___  || |           | |   |  ___  |(_____  )|   _ (
-      | |      | (\ (      ) (         ) |   | |   | (   ) || |           | |   | (   ) |      ) ||  ( \ \
-      | (____/\| ) \ \__   | |   /\____) |   | |   | )   ( || (____/\     | |   | )   ( |/\____) ||  /  \ \
-      (_______/|/   \__/   \_/   \_______)   )_(   |/     \|(_______/     )_(   |/     \|\_______)|_/    \/
-}
     end
   end
 end

@@ -1,5 +1,4 @@
 require "kemal"
-require "../crystal_task"
 require "./web/*"
 
 module CrystalTask
@@ -7,7 +6,7 @@ module CrystalTask
     public_folder "#{__DIR__}/web"
 
     macro render_helper(file)
-      render "src/crystal_task/web/html/#{{{file}}}.ecr", "src/crystal_task/web/html/layout.ecr"
+      render "#{__DIR__}/web/html/#{{{file}}}.ecr", "#{__DIR__}/web/html/layout.ecr"
     end
 
     get "/" do |x|
@@ -15,8 +14,7 @@ module CrystalTask
 
       # TODO: Move all this into a pipeline
       counts = CrystalTask.metrics.counts(all_keys)
-      processed_data = stats("processed", keys, counts)
-      failed_data = stats("failed", keys, counts)
+      processed_data = all_time_dashboard_stats(keys, counts)
       queued = CrystalTask.storage.queued(CrystalTask::QUEUED_QUEUE)
       retries = CrystalTask.storage.retries(CrystalTask::RETRIES_QUEUE)
       dead = CrystalTask.storage.dead(CrystalTask::DEAD_LETTER_QUEUE)
@@ -28,16 +26,31 @@ module CrystalTask
 
     def self.run!
       # print the banner and do some initalization
-      CrystalTask::Server.boot("web")
+
+      CrystalTask.boot("web")
       # Run kemal
       Kemal.run(CrystalTask::Configuration.instance.web_port)
     end
 
-    private def self.stats(metric : String, keys, counts)
+    private def self.all_time_dashboard_stats(keys : Array(String), counts)
+      processed = "processed"
+      failed = "failed"
       {
-        labels:   keys.map { |x| x.split(":").last if x.includes?(metric) }.compact,
-        datasets: [{data: keys.map { |x| counts[x].to_i if x.includes?(metric) }.compact,
-                    label: metric.capitalize}],
+        labels:   keys.map { |x| x.split(":").last if x.includes?(processed) }.compact,
+        datasets: [
+          {
+            data:            keys.map { |x| counts[x].to_i if x.includes?(processed) }.compact,
+            label:           processed.capitalize,
+            borderColor:     "#00ff0040",
+            backgroundColor: "#00ff00",
+          },
+          {
+            data:            keys.map { |x| counts[x].to_i if x.includes?(failed) }.compact,
+            label:           failed.capitalize,
+            borderColor:     "#ff000040",
+            backgroundColor: "#ff0000",
+          },
+        ],
       }
     end
 

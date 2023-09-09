@@ -9,7 +9,7 @@ Background workers for Crystal. Similar to other background systems. There is a 
    ```yaml
    dependencies:
      crystal_task:
-       github: amedeiros/crystal_task
+       github: amedeiros/crystal-task
    ```
 
 2. Run `shards install`
@@ -72,6 +72,7 @@ Running the worker server.
 
 ```crystal
 #!/usr/bin/env crystal
+require "crystal_task"
 require "crystal_task/server"
 CrystalTask::Server.run!
 ```
@@ -80,6 +81,7 @@ Running the web server.
 
 ```crystal
 #!/usr/bin/env crystal
+require "crystal_task"
 require "crystal_task/web"
 CrystalTask::Web.run!
 ```

@@ -1,5 +1,7 @@
 #!/usr/bin/env crystal
 
+require "../crystal_task"
+require "../crystal_task/server"
 require "./example_workers"
 
 CrystalTask::Configuration.configure do |c|
