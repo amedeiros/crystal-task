@@ -110,7 +110,7 @@ module CrystalTask
   end
 
   def self.spawn_safe_fiber(name : String, verbose : Bool = true, &block)
-    spawn do
+    spawn(name: name) do
       CrystalTask.logger.info { "Starting fiber #{name}..." } if verbose
       loop do
         begin
@@ -123,7 +123,7 @@ module CrystalTask
   end
 
   def self.unix_epoch : Int64
-    (Time.utc - Time::UNIX_EPOCH).to_i
+    Time.utc.to_unix
   end
 
   # The following functions are here because it is currently shared between worker server and web.
