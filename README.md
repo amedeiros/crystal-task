@@ -49,7 +49,7 @@ class PeriodicWorker
   # EX: First run 10:05:36 next run 11:05:36
   periodic 1.hour
 
-  def perform(args : Hash(String, JSON::Any))
+  def perform(args : (String, JSON::Any))
     # do some work on an interval
   end
 ```

@@ -1,6 +1,5 @@
 require "./storage/base"
-require "./metrics/base"
-require "./metrics/redis"
+require "./metrics/memory"
 
 module CrystalTask
   class Configuration
@@ -12,7 +11,7 @@ module CrystalTask
     # Defaults
     private def initialize
       @storage = CrystalTask::Storage::Redis.new
-      @metrics = CrystalTask::Metrics::Redis.new
+      @metrics = CrystalTask::Metrics::Memory.new
       @max_fibers = System.cpu_count
       @web_port = 3001
     end
