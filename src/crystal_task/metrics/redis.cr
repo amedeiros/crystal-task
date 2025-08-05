@@ -15,8 +15,7 @@ module CrystalTask
       getter pool : ::Redis::PooledClient
 
       def initialize(hostname : String = ENV.fetch("REDIS_HOST", "127.0.0.1"),
-        pool_size : Int64  = ENV.fetch("REDIS_POOL_SIZE", (System.cpu_count > 5 ? System.cpu_count : 5).to_s).to_i64 )
-
+                     pool_size : Int64 = ENV.fetch("REDIS_POOL_SIZE", (System.cpu_count > 5 ? System.cpu_count : 5).to_s).to_i64)
         @pool = ::Redis::PooledClient.new(hostname, pool_size: pool_size.to_i)
       end
 
@@ -25,7 +24,7 @@ module CrystalTask
           metrics.each { |x| pipe.incr(x) }
         end
       end
-      
+
       def decr(metric : String)
         pool.decr(metric)
       end
@@ -61,8 +60,8 @@ module CrystalTask
         results
       end
 
-      def get_count(metric : String) : String?
-        pool.get(metric)
+      def get_count(metric : String) : Int64
+        pool.get(metric).to_i
       end
     end
   end
